@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meşk Gecesi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=Noto+Naskh+Arabic:wght@400;500&family=Cinzel:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0b08;
+    --bg2: #161310;
+    --bg3: #1e1a14;
+    --gold: #c9a84c;
+    --gold-dim: #7a6130;
+    --gold-bright: #e8c87a;
+    --cream: #f0e6cc;
+    --cream-dim: #a89878;
+    --cream-faint: #3a3020;
+    --makam-color: #c9a84c;
+    --border: rgba(201,168,76,0.2);
+    --border-strong: rgba(201,168,76,0.45);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--cream);
+    font-family: 'Lora', Georgia, serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Subtle noise/grain overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  /* Geometric SVG header ornament */
+  .header-ornament {
+    text-align: center;
+    padding: 2rem 0 0.5rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  header {
+    text-align: center;
+    padding: 1rem 2rem 2rem;
+    border-bottom: 1px solid var(--border-strong);
+    position: relative;
+    z-index: 1;
+  }
+
+  .header-title {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 400;
+    color: var(--gold-bright);
+    letter-spacing: 0.15em;
+    line-height: 1.2;
+  }
+
+  .header-subtitle {
+    font-family: 'Lora', serif;
+    font-style: italic;
+    color: var(--cream-dim);
+    font-size: 1rem;
+    margin-top: 0.4rem;
+    letter-spacing: 0.05em;
+  }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    flex: 1;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    border-right: 1px solid var(--border);
+    padding: 1.5rem 0;
+    overflow-y: auto;
+    position: sticky;
+    top: 0;
+    height: calc(100vh - 120px);
+    background: var(--bg2);
+  }
+
+  /* Mobile drawer overlay */
+  .drawer-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 200;
+  }
+
+  .drawer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    max-height: 72vh;
+    background: var(--bg2);
+    border-top: 1px solid var(--border-strong);
+    border-radius: 16px 16px 0 0;
+    z-index: 201;
+    overflow-y: auto;
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+    padding-bottom: env(safe-area-inset-bottom, 16px);
+  }
+
+  .drawer.open { transform: translateY(0); }
+  .drawer-overlay.open { display: block; }
+
+  .drawer-handle {
+    width: 36px;
+    height: 4px;
+    background: var(--border-strong);
+    border-radius: 2px;
+    margin: 12px auto 4px;
+  }
+
+  .drawer-title {
+    font-family: 'Cinzel', serif;
+    font-size: 0.6rem;
+    letter-spacing: 0.25em;
+    color: var(--gold-dim);
+    text-align: center;
+    padding: 0.25rem 0 1rem;
+  }
+
+  .makam-label {
+    font-family: 'Cinzel', serif;
+    font-size: 0.6rem;
+    letter-spacing: 0.25em;
+    color: var(--gold-dim);
+    text-transform: uppercase;
+    padding: 1.2rem 1.5rem 0.4rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .makam-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .sidebar-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.6rem 1.5rem;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    border-left: 2px solid transparent;
+  }
+
+  .sidebar-item:hover {
+    background: var(--bg3);
+    border-left-color: var(--gold-dim);
+  }
+
+  .sidebar-item.active {
+    background: var(--cream-faint);
+    border-left-color: var(--gold);
+  }
+
+  .sidebar-num {
+    font-family: 'Cinzel', serif;
+    font-size: 0.65rem;
+    color: var(--gold-dim);
+    min-width: 1.2rem;
+    padding-top: 0.15rem;
+  }
+
+  .sidebar-item.active .sidebar-num { color: var(--gold); }
+
+  .sidebar-name {
+    font-size: 0.82rem;
+    color: var(--cream-dim);
+    line-height: 1.35;
+  }
+
+  .sidebar-item.active .sidebar-name { color: var(--cream); }
+
+  /* Main content */
+  .main {
+    padding: 2rem 3rem 5rem;
+    overflow-y: auto;
+    height: calc(100vh - 120px);
+    scroll-behavior: smooth;
+  }
+
+  .giriş-section {
+    max-width: 680px;
+    margin: 0 auto 3rem;
+    padding: 1.5rem 2rem;
+    border: 1px solid var(--border);
+    background: var(--bg2);
+    border-radius: 4px;
+    position: relative;
+  }
+
+  .giriş-section::before {
+    content: 'Giriş';
+    font-family: 'Cinzel', serif;
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    color: var(--gold-dim);
+    position: absolute;
+    top: -0.55rem;
+    left: 1.5rem;
+    background: var(--bg2);
+    padding: 0 0.5rem;
+  }
+
+  .giriş-note {
+    font-style: italic;
+    color: var(--cream-dim);
+    font-size: 0.88rem;
+    line-height: 1.7;
+    margin-bottom: 0.5rem;
+  }
+
+  .makam-section {
+    max-width: 680px;
+    margin: 0 auto 1.5rem;
+  }
+
+  .makam-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding-top: 1rem;
+  }
+
+  .makam-header-name {
+    font-family: 'Cinzel', serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.3em;
+    color: var(--gold);
+    text-transform: uppercase;
+  }
+
+  .makam-header-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, var(--gold-dim), transparent);
+  }
+
+  .ilahi-card {
+    margin-bottom: 2.5rem;
+    border-left: 2px solid var(--border);
+    padding-left: 1.5rem;
+    transition: border-color 0.3s;
+    scroll-margin-top: 2rem;
+  }
+
+  .ilahi-card.active {
+    border-left-color: var(--gold);
+  }
+
+  .ilahi-header {
+    margin-bottom: 1rem;
+    cursor: pointer;
+  }
+
+  .ilahi-num-title {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    margin-bottom: 0.2rem;
+  }
+
+  .ilahi-num {
+    font-family: 'Cinzel', serif;
+    font-size: 0.7rem;
+    color: var(--gold-dim);
+    min-width: 1.5rem;
+  }
+
+  .ilahi-card.active .ilahi-num { color: var(--gold); }
+
+  .ilahi-title {
+    font-family: 'Lora', serif;
+    font-size: 1.25rem;
+    font-weight: 500;
+    color: var(--cream);
+    line-height: 1.3;
+  }
+
+  .ilahi-card.active .ilahi-title { color: var(--gold-bright); }
+
+  .ilahi-poet {
+    font-style: italic;
+    font-size: 0.82rem;
+    color: var(--cream-dim);
+    margin-left: 2.25rem;
+  }
+
+  .ilahi-note {
+    font-style: italic;
+    font-size: 0.78rem;
+    color: var(--gold-dim);
+    margin-left: 2.25rem;
+    margin-top: 0.3rem;
+  }
+
+  .ilahi-lyrics {
+    font-size: 0.95rem;
+    line-height: 1.95;
+    color: var(--cream-dim);
+    padding-left: 2.25rem;
+    white-space: pre-wrap;
+  }
+
+  .ilahi-card.active .ilahi-lyrics { color: var(--cream); }
+
+  .lyrics-refrain {
+    color: var(--gold-dim);
+    font-style: italic;
+  }
+
+  .ilahi-card.active .lyrics-refrain { color: var(--gold); }
+
+  /* Now playing bar */
+  .now-playing {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--bg2);
+    border-top: 1px solid var(--border-strong);
+    padding: 0.75rem 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    z-index: 100;
+  }
+
+  .now-playing-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--gold);
+    animation: pulse 2s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.85); }
+  }
+
+  .now-playing-label {
+    font-size: 0.7rem;
+    font-family: 'Cinzel', serif;
+    letter-spacing: 0.15em;
+    color: var(--gold-dim);
+    flex-shrink: 0;
+  }
+
+  .now-playing-title {
+    font-size: 0.9rem;
+    color: var(--gold-bright);
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .nav-buttons {
+    display: flex;
+    gap: 0.5rem;
+    flex-shrink: 0;
+  }
+
+  .nav-btn {
+    background: none;
+    border: 1px solid var(--border-strong);
+    color: var(--cream-dim);
+    padding: 0.35rem 0.9rem;
+    font-family: 'Cinzel', serif;
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+
+  .nav-btn:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+
+  .list-btn {
+    display: none;
+    align-items: center;
+    gap: 0.3rem;
+  }
+
+  /* Mobile */
+  @media (max-width: 700px) {
+    .layout { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+    header { padding: 0.75rem 1.25rem 1.25rem; }
+    .header-ornament { padding: 1.25rem 0 0.25rem; }
+    .main {
+      padding: 1.25rem 1.25rem 90px;
+      height: auto;
+      overflow-y: visible;
+    }
+    .makam-section { padding: 0; }
+    .ilahi-card { padding-left: 1rem; margin-bottom: 2rem; }
+    .ilahi-lyrics {
+      padding-left: 0;
+      font-size: 1rem;
+      line-height: 2;
+    }
+    .ilahi-num-title { gap: 0.5rem; }
+    .ilahi-title { font-size: 1.15rem; }
+    .ilahi-poet, .ilahi-note { margin-left: 0; }
+    .now-playing {
+      padding: 0.6rem 1rem;
+      padding-bottom: calc(0.6rem + env(safe-area-inset-bottom, 0px));
+      gap: 0.6rem;
+    }
+    .now-playing-label { display: none; }
+    .now-playing-title { font-size: 0.82rem; }
+    .nav-btn { padding: 0.5rem 0.75rem; font-size: 0.65rem; }
+    .list-btn {
+      display: flex !important;
+    }
+  }
+
+  /* Ornament SVG */
+  .ornament { color: var(--gold-dim); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-ornament">
+    <svg width="180" height="28" viewBox="0 0 180 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <line x1="0" y1="14" x2="70" y2="14" stroke="#7a6130" stroke-width="0.5"/>
+      <polygon points="90,2 96,14 90,26 84,14" fill="none" stroke="#c9a84c" stroke-width="0.8"/>
+      <circle cx="90" cy="14" r="3" fill="#c9a84c" opacity="0.6"/>
+      <line x1="110" y1="14" x2="180" y2="14" stroke="#7a6130" stroke-width="0.5"/>
+      <circle cx="0" cy="14" r="2" fill="#7a6130"/>
+      <circle cx="180" cy="14" r="2" fill="#7a6130"/>
+    </svg>
+  </div>
+  <div class="header-title">Meşk Gecesi</div>
+  <div class="header-subtitle">İlahi Metinleri</div>
+</header>
+
+<div class="layout">
+
+  <nav class="sidebar" id="sidebar">
+    <div class="makam-label">Segah</div>
+    <div class="sidebar-item active" data-idx="0" onclick="setActive(0)">
+      <span class="sidebar-num">1</span>
+      <span class="sidebar-name">Canım Kurban</span>
+    </div>
+    <div class="sidebar-item" data-idx="1" onclick="setActive(1)">
+      <span class="sidebar-num">2</span>
+      <span class="sidebar-name">Ey Allah'ım Beni Senden Ayırma</span>
+    </div>
+    <div class="sidebar-item" data-idx="2" onclick="setActive(2)">
+      <span class="sidebar-num">3</span>
+      <span class="sidebar-name">Tende Canım</span>
+    </div>
+    <div class="sidebar-item" data-idx="3" onclick="setActive(3)">
+      <span class="sidebar-num">4</span>
+      <span class="sidebar-name">Gel Gör Beni Aşk Neyledi</span>
+    </div>
+
+    <div class="makam-label">Rast</div>
+    <div class="sidebar-item" data-idx="4" onclick="setActive(4)">
+      <span class="sidebar-num">5</span>
+      <span class="sidebar-name">İlim İlim Bilmektir</span>
+    </div>
+    <div class="sidebar-item" data-idx="5" onclick="setActive(5)">
+      <span class="sidebar-num">6</span>
+      <span class="sidebar-name">Kaside-i Bürde</span>
+    </div>
+    <div class="sidebar-item" data-idx="6" onclick="setActive(6)">
+      <span class="sidebar-num">7</span>
+      <span class="sidebar-name">Erler Demine</span>
+    </div>
+    <div class="sidebar-item" data-idx="7" onclick="setActive(7)">
+      <span class="sidebar-num">8</span>
+      <span class="sidebar-name">Ey Âşık-ı Dildâde</span>
+    </div>
+
+    <div class="makam-label">Hicaz</div>
+    <div class="sidebar-item" data-idx="8" onclick="setActive(8)">
+      <span class="sidebar-num">9</span>
+      <span class="sidebar-name">Ah Nice Bir Uyursun</span>
+    </div>
+    <div class="sidebar-item" data-idx="9" onclick="setActive(9)">
+      <span class="sidebar-num">10</span>
+      <span class="sidebar-name">Müştakım Yare</span>
+    </div>
+    <div class="sidebar-item" data-idx="10" onclick="setActive(10)">
+      <span class="sidebar-num">11</span>
+      <span class="sidebar-name">Ömrün Bitirmiş</span>
+    </div>
+  </nav>
+
+  <main class="main" id="main">
+
+    <!-- SEGAH -->
+    <section class="makam-section">
+      <div class="makam-header">
+        <div class="makam-header-name">Segah</div>
+        <div class="makam-header-line"></div>
+      </div>
+
+      <div class="ilahi-card active" id="ilahi-0" data-idx="0">
+        <div class="ilahi-header" onclick="setActive(0)">
+          <div class="ilahi-num-title">
+            <span class="ilahi-num">I</span>
+            <span class="ilahi-title">Canım Kurban</span>
+          </div>
+          <div class="ilahi-poet">Yunus Emre</div>
+          <div class="ilahi-note">~ Doğru tonu bulmak için taksim · [4'lük def]</div>
+        </div>
+        <div class="ilahi-lyrics"><span class="lyrics-refrain">Ya Resulallah,
+Ya Habiballah,
+Ya Nebiyyallah,
+Ya Şefiallah
+
+Sallallahu alâ Muhammed
+Sallallahu aleyhi ve sellem (×2)</span>
+
+Canım kurban olsun senin yoluna
+<span class="lyrics-refrain">Adı güzel, kendi güzel Muhammed</span>
+Gel şefaat eyle kemter kuluna
+<span class="lyrics-refrain">Adı güzel, kendi güzel Muhammed</span>
+
+Mü'min olanların çoktur cefası
+Âhirette olur zevk-u sâfası
+Onsekiz bin âlemin Mustafası
+<span class="lyrics-refrain">Adı güzel, kendi güzel Muhammed</span>
+
+Yunus neyler iki cihanı sensiz
+Sen Hak Peygambersin şeksiz şüphesiz
+Sana uymayanlar gider imansız
+<span class="lyrics-refrain">Adı güzel, kendi güzel Muhammed</span>
+
+Sana uymayanlar gider imansız
+<span class="lyrics-refrain">Allahümme salli alâ Muhammed (×2)</span></div>
+      </div>
+
+      <div class="ilahi-card" id="ilahi-1" data-idx="1">
+        <div class="ilahi-header" onclick="setActive(1)">
+          <div class="ilahi-num-title">
+            <span class="ilahi-num">II</span>
+            <span class="ilahi-title">Ey Allah'ım Beni Senden Ayırma</span>
+          </div>
+          <div class="ilahi-poet">Eşrefzade Rumi</div>
+          <div class="ilahi-note">[4'lük def] · ilk sefer solo, ikinci sefer koro</div>
+        </div>
+        <div class="ilahi-lyrics">Ey Allah'ım beni senden ayırma, (×2)
+Beni senin dîdârından ayırma. (×2)
+
+Seni sevmek benim dînim îmânım, (×2)
+İlâhî dînü îmândan ayırma. (×2)
+
+Şeyhim güldür ben ânın yaprağıyam, (×2)
+İlâhî yaprağı gülden ayırma. (×2)
+
+Ben ol dost bahçesinin bülbülüyem,
+İlâhî bülbülüm gülden ayırma.
+
+Eşrefzade senin kemter kulundur, (×2)
+İlâhî kulu sultândan ayırma. (×2)
+
+<span class="lyrics-refrain">[Direkt geçiş]</span></div>
+      </div>
+
+      <div class="ilahi-card" id="ilahi-2" data-idx="2">
+        <div class="ilahi-header" onclick="setActive(2)">
+          <div class="ilahi-num-title">
+            <span class="ilahi-num">III</span>
+            <span class="ilahi-title">Tende Canım</span>
+          </div>
+          <div class="ilahi-poet">Niyazi Mısri</div>
+          <div class="ilahi-note">[4'lük def]</div>
+        </div>
+        <div class="ilahi-lyrics">Tende canım, canda cananımdır Allah, Hû diye (×2)
+Dilde sırrım, sırda Sübhânımdır Allah, Hû diye (×2)
+
+Geceler tâ sübh olunca inletir bu derd beni, (×2)
+Derdimin içinde dermanımdır Allah, Hû diye (×2)
+
+Yere göğe sığmayan bir müminin kalbindedir, (×2)
+Katremin içinde ummanımdır Allah, Hû diye (×2)
+
+Her kişiye kendinden akrab olan dost zâtıdır, (×2)
+Ey Niyazi dilde mihmanımdır Allah, Hû diye (×2)</div>
+      </div>
+
+      <div class="ilahi-card" id="ilahi-3" data-idx="3">
+        <div class="ilahi-header" onclick="setActive(3)">
+          <div class="ilahi-num-title">
+            <span class="ilahi-num">IV</span>
+            <span class="ilahi-title">Gel Gör Beni Aşk Neyledi</span>
+          </div>
+          <div class="ilahi-poet">Yunus Emre</div>
+          <div class="ilahi-note">[saz solo]</div>
+        </div>
+        <div class="ilahi-lyrics">Ben yürürüm yane yane,
+Aşk boyadı beni kane,
+Ne âkilem ne divâne,
+<span class="lyrics-refrain">Gel gör beni aşk neyledi.
+Gel gör beni aşk neyledi,
+Derde giriftar eyledi.</span>
+
+Gâh eserim yeller gibi,
+Gâh tozarım yollar gibi,
+Gâh çağlarım seller gibi,
+<span class="lyrics-refrain">Gel gör beni aşk neyledi.
+Gel gör beni aşk neyledi.
+Derde giriftar eyledi.</span>
+
+Ben yürürem elden ele,
+Dost sorarım dilden dile,
+Gurbette hâlim kim bile,
+<span class="lyrics-refrain">Gel gör beni aşk neyledi.
+Gel gör beni aşk neyledi.
+Derde giriftar eyledi.</span>
+
+Ben Yunus-i biçareyim,
+Aşk elinden avareyim,
+Baştan ayağa yâreyim,
+<span class="lyrics-refrain">Gel gör beni aşk neyledi.
+Gel gör beni aşk neyledi.
+Derde giriftar eyledi.</span></div>
+      </div>
+    </section>
+
+    <!-- RAST -->
+    <section class="makam-section">
+      <div class="makam-header">
+        <div class="makam-header-name">Rast</div>
+        <div class="makam-header-line"></div>
+      </div>
+
+      <div class="ilahi-card" id="ilahi-4" data-idx="4">
+        <div class="ilahi-header" onclick="setActive(4)">
+          <div class="ilahi-num-title">
+            <span class="ilahi-num">V</span>
+            <span class="ilahi-title">İlim İlim Bilmektir</span>
+          </div>
+          <div class="ilahi-poet">Yunus Emre</div>
+          <div class="ilahi-note">~ Rasta geçiş için taksim</div>
+        </div>
+        <div class="ilahi-lyrics">İlim ilim bilmektir
+İlim kendin bilmektir
+Sen kendini bilmezsin
+Bu nice okumaktır
+
+Okumanın mânâsı
+Kişi hakkı bilmektir
+Çün okudun bilmezsin
+Ha bir kuru emektir
+
+Okudum bildim deme
+Çok taat kıldım deme
+Eğer Hakk'ı bilmezsen
+Bu kuru laf demektir
+
+Yunus Emre der hoca
+İstersen bin var hacca
+Hepisinden iyice
+Bir gönüle girmektir</div>
+      </div>
+
+      <div class="ilahi-card" id="ilahi-5" data-idx="5">
+        <div class="ilahi-header" onclick="setActive(5)">
+          <div class="ilahi-num-title">
+            <span class="ilahi-num">VI</span>
+            <span class="ilahi-title">Kaside-i Bürde</span>
+          </div>
+          <div class="ilahi-poet">İmam Bûsîrî</div>
+          <div class="ilahi-note">[ilk kıta solo] · yavaş yavaş hızlanacak</div>
+        </div>
+        <div class="ilahi-lyrics"><span class="lyrics-refrain">Allah Allah ya Allah (×2)
+Allah Allah ya Allah (×2)</span>
+
+Mevlâya salli ve sellim dâimen ebeden
+Alâ habibike hayri'l-halki küllihimi
+
+E min tezekküri cirânin bi zîselemi
+Mezecte dem'an cerâ min mukletin bi demi
+
+Hüve'l-habibü'l-lezî türca şefâatühu
+Li külli hevlin mine'l-ehvali muktehimi
+
+Muhammedün Seyyidü'l-kevneyni ve's-sekaleyn
+Ve'l-ferikayni mi'î-in 'urbin ve min acemi
+
+<span class="lyrics-refrain">Mevlâya salli alâ Muhammedin ve alâ
+Ezvacihi't-tâhirât ve küllihim ecmain</span>
+
+Sümme'r-reca an Ebibekrin ve an Ömeri
+Ve'l-hadra Osmaniya Mevlâ Ali bi demi
+
+<span class="lyrics-refrain">Mevlaya salli 'ala Muhammedin ve alâ
+Eshabihi'l-hulefâ ve küllihim ecmaîn
+
+Hüve'l-habibü'l-lezî türca şefâatühu
+Li külli hevlin mine'l-ehvali muktehimi</span></div>
+      </div>
+
+      <div class="ilahi-card" id="ilahi-6" data-idx="6">
+        <div class="ilahi-header" onclick="setActive(6)">
+          <div class="ilahi-num-title">
+            <span class="ilahi-num">VII</span>
+            <span class="ilahi-title">Erler Demine</span>
+          </div>
+        </div>
+        <div class="ilahi-lyrics">Erler demine destur alalım
+Pervaneye bak ibret alalım
+Aşkın ateşine gel bir yanalım
+<span class="lyrics-refrain">Dost Dost Dost Dost</span>
+
+Devrana girip seyran edelim
+Eyvâh demeden Allah diyelim
+<span class="lyrics-refrain">La ilahe illallah
+Hu</span>
+
+Günler geceler durmaz geçiyor
+Sermayen olan ömrün bitiyor
+Bülbüllere bak efgan ediyor
+Ey gonca açıl mevsim geçiyor
+
+Ey yolcu biraz gel dinle beni
+Kervan geçiyor sen kalma geri
+Yusuf denilen dünya güzeli
+Fethetti bugün kalbi seferi</div>
+      </div>
+
+      <div class="ilahi-card" id="ilahi-7" data-idx="7">
+        <div class="ilahi-header" onclick="setActive(7)">
+          <div class="ilahi-num-title">
+            <span class="ilahi-num">VIII</span>
+            <span class="ilahi-title">Ey Âşık-ı Dildâde</span>
+          </div>
+        </div>
+        <div class="ilahi-lyrics">Ey âşık-ı dildâde gel nûş idelim bâde
+Bir bâde gerek ammâ ki içile me'vâde
+
+<span class="lyrics-refrain">Can Allah Canan Allah Canlar sana kurban Allah
+Hay kalbi zikrullah
+La ilahe illallah Muhammed-ur-Resulullah</span>
+
+Sâkîsi ola Mevlâ akdâhı anın esmâ
+Bir kez nûş iden kat'â gam görmeye dünyâde
+
+<span class="lyrics-refrain">Can Allah Canan Allah Canlar Sana kurban Allah
+Hay kalbi zikrullah
+La ilahe illallah Muhammed-ur-Resulullah</span>
+
+Bir kez içen âşıkdır yolunda hem sâdıkdır
+Aşk öğrete lâyıkdır Mecnûn ile Ferhâd'e
+
+<span class="lyrics-refrain">Can Allah Canan Allah Canlar sana kurban Allah
+Hay kalbi zikrullah
+La ilahe illallah Muhammed-ur-Resulullah</span>
+
+İşit bu Sezâî'den ne gördü Fenâî'den
+Dost vechini gösterdi mir'ât-ı mücellâde
+
+<span class="lyrics-refrain">Can Allah Canan Allah Canlar sana kurban Allah
+Hay kalbi zikrullah
+La ilahe illallah Muhammed-ur-Resulullah</span></div>
+      </div>
+    </section>
+
+    <!-- HİCAZ -->
+    <section class="makam-section">
+      <div class="makam-header">
+        <div class="makam-header-name">Hicaz</div>
+        <div class="makam-header-line"></div>
+      </div>
+
+      <div class="ilahi-card" id="ilahi-8" data-idx="8">
+        <div class="ilahi-header" onclick="setActive(8)">
+          <div class="ilahi-num-title">
+            <span class="ilahi-num">IX</span>
+            <span class="ilahi-title">Ah Nice Bir Uyursun</span>
+          </div>
+          <div class="ilahi-poet">Yunus Emre</div>
+          <div class="ilahi-note">~ Hicaza geçiş için taksim · [direkt geçiş]</div>
+        </div>
+        <div class="ilahi-lyrics">Ah nice bir uyursun uyanmaz mısın (×2)
+<span class="lyrics-refrain">Göçtü kervân kaldık dağlar başında (Allah Allah)
+Göçtü kervân kaldık dağlar başında</span>
+
+Çağrışır tellâllar inanmaz mısın (×2)
+<span class="lyrics-refrain">Göçtü kervân kaldık dağlar başında (Allah Allah)
+Göçtü kervân kaldık dağlar başında</span>
+
+Yûnus sen bu dünyâya niye geldin (×2)
+<span class="lyrics-refrain">Göçtü kervân kaldık dağlar başında (Allah Allah)
+Göçtü kervân kaldık dağlar başında</span>
+
+Evliyâya uğramaz ise yolun (×2)
+<span class="lyrics-refrain">Göçtü kervân kaldık dağlar başında (Allah Allah)
+Göçtü kervân kaldık dağlar başında</span></div>
+      </div>
+
+      <div class="ilahi-card" id="ilahi-9" data-idx="9">
+        <div class="ilahi-header" onclick="setActive(9)">
+          <div class="ilahi-num-title">
+            <span class="ilahi-num">X</span>
+            <span class="ilahi-title">Müştakım Yare</span>
+          </div>
+          <div class="ilahi-note">[2'lik def] · yavaş yavaş hızlanacak</div>
+        </div>
+        <div class="ilahi-lyrics">Müştâkım yâre,
+Yok mu bir çare.
+Oldum âvare,
+<span class="lyrics-refrain">Aşkın elinden. (Allah Allah)
+Oldum âvare,
+Aşkın elinden.</span>
+
+Aşık-ı zarım
+Artar firakım
+Derd ü bimarım
+<span class="lyrics-refrain">Aşkın elinden (Allah Allah)
+Derd ü bimarım
+Aşkın elinden</span>
+
+Firkatim vuslat
+Mihnetim sıhhat
+Zilletim izzet
+<span class="lyrics-refrain">Aşkın elinden (Allah Allah)
+Zilletim izzet
+Aşkın elinden</span>
+
+<span class="lyrics-refrain">— Hızlan —</span>
+
+Uğrayan derde
+Ağlar seherde
+Söyler her yerde
+<span class="lyrics-refrain">Aşkın elinden (Allah Allah)
+Söyler her yerde
+Aşkın elinden</span></div>
+      </div>
+
+      <div class="ilahi-card" id="ilahi-10" data-idx="10">
+        <div class="ilahi-header" onclick="setActive(10)">
+          <div class="ilahi-num-title">
+            <span class="ilahi-num">XI</span>
+            <span class="ilahi-title">Ömrün Bitirmiş</span>
+          </div>
+        </div>
+        <div class="ilahi-lyrics"><span class="lyrics-refrain">Allah-u Allah (×4)
+Allah-u Allah (×4)</span>
+
+Ömrün bitirmiş Vîrâne miyem
+Aklın yitirmiş Dîvâne miyem
+Nedir bu hâlim Artar melâlim
+Söyle a zâlim Bîgâne miyem
+
+<span class="lyrics-refrain">Allah-u Allah (×4)
+Allah-u Allah (×4)</span>
+
+Kanat vururum Döner dururum
+Yanar kururum Pervâne miyem
+Yaşlı gözlerim Tutmaz dizlerim
+Yolun izlerim Mestâne miyem
+
+<span class="lyrics-refrain">Allah-u Allah (×4)
+Allah-u Allah (×4)</span>
+
+Meczûb sanırlar Mecnûn tanırlar
+Hep aldanırlar Uryâne miyem
+Aşkî can fedâ Olsa ne fayda
+Aşk oku yayda Kemâne miyem
+
+<span class="lyrics-refrain">~ Kaside (Semih) ~
+
+Allah-u Allah (×4)
+Allah-u Allah (×4)</span></div>
+      </div>
+
+    </section>
+
+  </main>
+</div>
+
+<!-- Mobile drawer -->
+<div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-handle"></div>
+  <div class="drawer-title">İlahiler</div>
+  <div id="drawer-content"></div>
+</div>
+
+<!-- Now playing bar -->
+<div class="now-playing" id="now-playing">
+  <div class="now-playing-dot"></div>
+  <div class="now-playing-label">ŞİMDİ</div>
+  <div class="now-playing-title" id="now-title">Canım Kurban</div>
+  <div class="nav-buttons">
+    <button class="nav-btn list-btn" onclick="openDrawer()">☰ Liste</button>
+    <button class="nav-btn" onclick="navigate(-1)">← Önceki</button>
+    <button class="nav-btn" onclick="navigate(1)">Sonraki →</button>
+  </div>
+</div>
+
+<script>
+  const titles = [
+    'Canım Kurban',
+    'Ey Allah\'ım Beni Senden Ayırma',
+    'Tende Canım',
+    'Gel Gör Beni Aşk Neyledi',
+    'İlim İlim Bilmektir',
+    'Kaside-i Bürde',
+    'Erler Demine',
+    'Ey Âşık-ı Dildâde',
+    'Ah Nice Bir Uyursun',
+    'Müştakım Yare',
+    'Ömrün Bitirmiş'
+  ];
+
+  const makams = [
+    { label: 'Segah', indices: [0,1,2,3] },
+    { label: 'Rast', indices: [4,5,6,7] },
+    { label: 'Hicaz', indices: [8,9,10] }
+  ];
+
+  const romans = ['I','II','III','IV','V','VI','VII','VIII','IX','X','XI'];
+
+  let current = 0;
+
+  function buildDrawer() {
+    const dc = document.getElementById('drawer-content');
+    let html = '';
+    makams.forEach(m => {
+      html += `<div style="font-family:'Cinzel',serif;font-size:0.58rem;letter-spacing:0.25em;color:var(--gold-dim);padding:1rem 1.5rem 0.35rem;display:flex;align-items:center;gap:0.5rem;">${m.label}<span style="flex:1;height:1px;background:var(--border);display:inline-block;"></span></div>`;
+      m.indices.forEach(i => {
+        html += `<div class="sidebar-item" data-idx="${i}" onclick="setActive(${i});closeDrawer();" style="padding:0.75rem 1.5rem;">
+          <span class="sidebar-num">${romans[i]}</span>
+          <span class="sidebar-name">${titles[i]}</span>
+        </div>`;
+      });
+    });
+    dc.innerHTML = html;
+  }
+
+  function openDrawer() {
+    document.getElementById('drawer').classList.add('open');
+    document.getElementById('drawer-overlay').classList.add('open');
+    syncDrawerActive();
+  }
+
+  function closeDrawer() {
+    document.getElementById('drawer').classList.remove('open');
+    document.getElementById('drawer-overlay').classList.remove('open');
+  }
+
+  function syncDrawerActive() {
+    document.querySelectorAll('#drawer-content .sidebar-item').forEach(s => {
+      s.classList.toggle('active', parseInt(s.dataset.idx) === current);
+    });
+  }
+
+  function setActive(idx) {
+    document.querySelectorAll('.ilahi-card').forEach(c => c.classList.remove('active'));
+    document.querySelectorAll('.sidebar-item').forEach(s => s.classList.remove('active'));
+
+    const card = document.getElementById('ilahi-' + idx);
+    if (card) {
+      card.classList.add('active');
+      card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    const sideItem = document.querySelector('.sidebar .sidebar-item[data-idx="' + idx + '"]');
+    if (sideItem) {
+      sideItem.classList.add('active');
+      sideItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    document.getElementById('now-title').textContent = titles[idx];
+    current = idx;
+    syncDrawerActive();
+  }
+
+  function navigate(dir) {
+    const next = Math.max(0, Math.min(titles.length - 1, current + dir));
+    setActive(next);
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') navigate(1);
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') navigate(-1);
+  });
+
+  buildDrawer();
+</script>
+
+</body>
+</html>
