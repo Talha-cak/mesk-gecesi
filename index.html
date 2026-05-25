@@ -8,15 +8,15 @@
 <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=Noto+Naskh+Arabic:wght@400;500&family=Cinzel:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0d0b08;
-    --bg2: #161310;
-    --bg3: #1e1a14;
+    --bg: #ffffff;
+    --bg2: #f5f5f5;
+    --bg3: #eeeeee;
     --gold: #c9a84c;
     --gold-dim: #7a6130;
     --gold-bright: #e8c87a;
-    --cream: #f0e6cc;
-    --cream-dim: #a89878;
-    --cream-faint: #3a3020;
+    --cream: #333333;
+    --cream-dim: #666666;
+    --cream-faint: #f0f0f0;
     --makam-color: #c9a84c;
     --border: rgba(201,168,76,0.2);
     --border-strong: rgba(201,168,76,0.45);
@@ -38,7 +38,7 @@
     content: '';
     position: fixed;
     inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctave='4' result='noise'/%3E%3C/filter%3E%3Crect width='256' height='256' fill='%23fff' filter='url(%23noise)' opacity='0.05'/%3E%3C/svg%3E");
     pointer-events: none;
     z-index: 0;
     opacity: 0.4;
@@ -460,12 +460,12 @@
 <header>
   <div class="header-ornament">
     <svg width="180" height="28" viewBox="0 0 180 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <line x1="0" y1="14" x2="70" y2="14" stroke="#7a6130" stroke-width="0.5"/>
+      <line x1="0" y1="14" x2="70" y2="14" stroke="#8b7355" stroke-width="0.5"/>
       <polygon points="90,2 96,14 90,26 84,14" fill="none" stroke="#c9a84c" stroke-width="0.8"/>
       <circle cx="90" cy="14" r="3" fill="#c9a84c" opacity="0.6"/>
-      <line x1="110" y1="14" x2="180" y2="14" stroke="#7a6130" stroke-width="0.5"/>
-      <circle cx="0" cy="14" r="2" fill="#7a6130"/>
-      <circle cx="180" cy="14" r="2" fill="#7a6130"/>
+      <line x1="110" y1="14" x2="180" y2="14" stroke="#8b7355" stroke-width="0.5"/>
+      <circle cx="0" cy="14" r="2" fill="#8b7355"/>
+      <circle cx="180" cy="14" r="2" fill="#8b7355"/>
     </svg>
   </div>
   <div class="header-title">Meşk Gecesi</div>
@@ -961,7 +961,7 @@ Allah-u Allah (×4)</span></div>
     const dc = document.getElementById('drawer-content');
     let html = '';
     makams.forEach(m => {
-      html += `<div style="font-family:'Cinzel',serif;font-size:0.58rem;letter-spacing:0.25em;color:var(--gold-dim);padding:1rem 1.5rem 0.35rem;display:flex;align-items:center;gap:0.5rem;">${m.label}<span style="flex:1;height:1px;background:var(--border);display:inline-block;"></span></div>`;
+      html += `<div style="font-family:'Cinzel',serif;font-size:0.58rem;letter-spacing:0.25em;color:var(--gold-dim);padding:1rem 1.5rem 0.35rem;display:flex;align-items:center;gap:0.5rem;">${m.label}<span style="flex:1;height:1px;background:var(--border);"></span></div>`;
       m.indices.forEach(i => {
         html += `<div class="sidebar-item" data-idx="${i}" onclick="setActive(${i});closeDrawer();" style="padding:0.75rem 1.5rem;">
           <span class="sidebar-num">${romans[i]}</span>
@@ -999,29 +999,19 @@ Allah-u Allah (×4)</span></div>
       card.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
-    const sideItem = document.querySelector('.sidebar .sidebar-item[data-idx="' + idx + '"]');
-    if (sideItem) {
-      sideItem.classList.add('active');
-      sideItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }
-
+    document.querySelectorAll(`.sidebar-item[data-idx="${idx}"]`).forEach(s => s.classList.add('active'));
     document.getElementById('now-title').textContent = titles[idx];
     current = idx;
-    syncDrawerActive();
   }
 
-  function navigate(dir) {
-    const next = Math.max(0, Math.min(titles.length - 1, current + dir));
-    setActive(next);
+  function navigate(direction) {
+    const nextIdx = (current + direction + titles.length) % titles.length;
+    setActive(nextIdx);
   }
 
-  document.addEventListener('keydown', e => {
-    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') navigate(1);
-    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') navigate(-1);
-  });
-
+  // Initialize
   buildDrawer();
+  setActive(0);
 </script>
-
 </body>
 </html>
